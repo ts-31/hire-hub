@@ -1,6 +1,7 @@
 # Node / Next.js (handled in client/.gitignore)
 client/.next
 client/node_modules
+client/package-lock.json
 
 # Python (handled in server/.gitignore)
 server/__pycache__/
