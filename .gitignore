@@ -1,0 +1,26 @@
+# Node / Next.js (handled in client/.gitignore)
+client/.next
+client/node_modules
+
+# Python (handled in server/.gitignore)
+server/__pycache__/
+server/*.pyc
+server/.venv
+server/venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment files
+*.env
+*.env.local
+.envrc
+
+# Logs
+logs/
+*.log
+
+# IDE configs
+.vscode/
+.idea/
