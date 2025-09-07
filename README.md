@@ -72,9 +72,17 @@ Authentication is handled via **Firebase Google Sign-In** with role-based access
 
 ```
 hire-hub/
-  client/       # React/Next.js app
-  server/       # FastAPI project
-  docs/         # Documentation and diagrams
+   ├── client/                                # React/Next.js app
+   │   ├── public/                            # Static assets
+   │   └── src/
+   │       └── app/                           # Next.js App Router
+   │           ├── page.js                    # Landing page
+   │           ├── workspace/                 # Workspace pages
+   │           │   └── page.js
+   │           └── components/                # Reusable UI components
+   ├── server/                                # FastAPI project
+   ├── docs/                                  # Documentation and diagrams
+   └── README.md
 ```
 
 ---
