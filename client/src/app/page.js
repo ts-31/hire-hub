@@ -1,4 +1,55 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+
 export default function Home() {
+  const { user, signInWithGoogle, logOut, loading } = useAuth();
+  const [authLoading, setAuthLoading] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  // Keep a local copy of whether user is signed in to immediately render UI
+  const isSignedIn = !!user;
+
+  // helper: store token in localStorage
+  const storeToken = async (credentialUser) => {
+    try {
+      if (!credentialUser) return;
+      // credentialUser is Firebase User object from signInWithPopup result
+      const token = await credentialUser.getIdToken();
+      localStorage.setItem("fb_token", token);
+    } catch (err) {
+      console.error("Failed to get/store token:", err);
+    }
+  };
+
+  const handleLogin = async () => {
+    try {
+      setAuthLoading(true);
+      const result = await signInWithGoogle(); // returns UserCredential
+      // result.user is Firebase User
+      await storeToken(result.user);
+      // onAuthStateChanged in context will also update `user`
+    } catch (err) {
+      console.error("Login failed:", err);
+      alert("Sign in failed. See console for details.");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setAuthLoading(true);
+      await logOut();
+      localStorage.removeItem("fb_token");
+      setProfileOpen(false);
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
   return (
     <div className="min-h-screen bg-[#E5E7EB]">
       {/* Navigation */}
@@ -8,13 +59,107 @@ export default function Home() {
             <div className="flex-shrink-0">
               <h1 className="text-2xl font-bold text-[#1E3A8A]">HireHub</h1>
             </div>
-            <div className="flex space-x-4">
-              <button className="text-gray-600 hover:text-[#1E3A8A] px-3 py-2 text-sm font-medium transition-colors">
-                Login
-              </button>
-              <button className="bg-[#0D9488] hover:bg-[#0F766E] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105">
-                Get Started
-              </button>
+
+            <div className="flex items-center space-x-4">
+              {!isSignedIn ? (
+                <>
+                  <button
+                    onClick={handleLogin}
+                    disabled={authLoading}
+                    className="text-gray-600 hover:text-[#1E3A8A] px-3 py-2 text-sm font-medium transition-colors disabled:opacity-50"
+                  >
+                    {authLoading ? "Signing in..." : "Login"}
+                  </button>
+                  <button
+                    className="bg-[#0D9488] hover:bg-[#0F766E] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105"
+                    onClick={() => {
+                      // Scroll to CTA or take to register flow later
+                      const el = document.querySelector(
+                        "section.py-20.bg-gradient-to-br"
+                      );
+                      if (el) el.scrollIntoView({ behavior: "smooth" });
+                    }}
+                  >
+                    Get Started
+                  </button>
+                </>
+              ) : (
+                // Profile avatar + dropdown
+                <div className="relative">
+                  <button
+                    onClick={() => setProfileOpen((s) => !s)}
+                    className="flex items-center gap-3 bg-white border border-gray-200 px-3 py-1 rounded-full hover:shadow-md transition"
+                  >
+                    {user.photoURL ? (
+                      <img
+                        src={user.photoURL}
+                        alt={user.displayName || "profile"}
+                        className="w-8 h-8 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-[#06B6D4] text-white flex items-center justify-center font-semibold">
+                        {(user.displayName || user.email || "U")
+                          .toString()
+                          .slice(0, 1)
+                          .toUpperCase()}
+                      </div>
+                    )}
+                    <span className="text-sm font-medium text-[#1E3A8A]">
+                      {user.displayName || user.email}
+                    </span>
+                    <svg
+                      className="w-4 h-4 text-gray-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </button>
+
+                  {profileOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
+                      <div className="p-3 border-b border-gray-100">
+                        <div className="text-sm font-semibold text-gray-800">
+                          {user.displayName}
+                        </div>
+                        <div className="text-xs text-gray-500 truncate">
+                          {user.email}
+                        </div>
+                      </div>
+                      <ul className="py-1">
+                        <li>
+                          <button
+                            onClick={() => {
+                              // route to dashboard later; for now close menu
+                              setProfileOpen(false);
+                              // TODO: router.push('/dashboard');
+                            }}
+                            className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
+                          >
+                            Dashboard
+                          </button>
+                        </li>
+                        <li>
+                          <button
+                            onClick={handleLogout}
+                            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                            disabled={authLoading}
+                          >
+                            {authLoading ? "Signing out..." : "Sign out"}
+                          </button>
+                        </li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
