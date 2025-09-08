@@ -21,3 +21,7 @@ build/
 # IDE
 .vscode/
 .idea/
+
+
+# Secrets
+service-account.json
