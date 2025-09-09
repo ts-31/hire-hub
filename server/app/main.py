@@ -1,11 +1,9 @@
 from fastapi import FastAPI
-from app.routers import protected
+from app.config.db import Base, engine
+from app.routers import users
+
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(protected.router)
-
-
-@app.get("/")
-def root():
-    return {"message": "Welcome to FastAPI + Firebase Auth backend"}
+app.include_router(users.router)
