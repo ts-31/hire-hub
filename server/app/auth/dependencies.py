@@ -10,7 +10,7 @@ def verify_token(auth_credentials: HTTPAuthorizationCredentials = Depends(securi
     token = auth_credentials.credentials
     print(f"[AUTH] Verifying token: {token[:10]}...")
     try:
-        decoded_token = auth.verify_id_token(token)
+        decoded_token = auth.verify_id_token(token, clock_skew_seconds=10)
         print(f"[AUTH SUCCESS] Token verified → UID={decoded_token.get('uid')}")
         return decoded_token
     except Exception as e:
