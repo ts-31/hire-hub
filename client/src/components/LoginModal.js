@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
+export default function LoginModal({ open, setOpen, onSubmit, authLoading, serverError }) {
   const [role, setRole] = useState("");
   const [company, setCompany] = useState("");
   const [error, setError] = useState("");
@@ -13,6 +13,10 @@ export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
       document.body.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
+      // reset fields when closing for a clean UX
+      setRole("");
+      setCompany("");
+      setError("");
     }
     return () => {
       document.body.style.overflow = "";
@@ -38,8 +42,7 @@ export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
       return;
     }
 
-    const extraInfo = { role, company_name: company };
-    console.log("Modal submit", extraInfo);
+    const extraInfo = { role, company_name: company.trim() };
     onSubmit(extraInfo);
   };
 
@@ -77,7 +80,7 @@ export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
                 Almost there — a bit more info
               </h3>
               <p className="text-white/90 text-xs">
-                We’ll use this to create your profile after login
+                We’ll use this to create your profile when you sign in
               </p>
             </div>
           </div>
@@ -135,8 +138,9 @@ export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
             />
           </div>
 
-          {/* Error */}
+          {/* Local & Server Errors */}
           {error && <div className="text-xs text-red-600">{error}</div>}
+          {serverError && <div className="text-xs text-red-600">{serverError}</div>}
 
           {/* Buttons */}
           <div className="flex items-center justify-end gap-3 pt-2">
@@ -177,7 +181,7 @@ export default function LoginModal({ open, setOpen, onSubmit, authLoading }) {
                   Signing in...
                 </>
               ) : (
-                "Continue"
+                "Continue with Google"
               )}
             </button>
           </div>

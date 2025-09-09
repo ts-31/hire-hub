@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 
 import Navbar from "@/components/Navbar";
@@ -13,10 +14,12 @@ import Footer from "@/components/Footer";
 import LoginModal from "@/components/LoginModal";
 
 export default function Home() {
+  const router = useRouter();
   const { user, signInWithGoogle, logOut, loading } = useAuth();
   const [authLoading, setAuthLoading] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const [modalError, setModalError] = useState("");
 
   // Keep a local copy of whether user is signed in to immediately render UI
   const isSignedIn = !!user;
@@ -25,7 +28,6 @@ export default function Home() {
   const storeToken = async (credentialUser) => {
     try {
       if (!credentialUser) return;
-      // credentialUser is Firebase User object from signInWithPopup result
       const token = await credentialUser.getIdToken();
       localStorage.setItem("fb_token", token);
     } catch (err) {
@@ -33,17 +35,85 @@ export default function Home() {
     }
   };
 
+  // Core flow: sign in with Google THEN call backend /check-user with role & company
   const handleLogin = async (extraInfo) => {
+    // extraInfo = { role: "HR" | "Recruiter", company_name: "Acme Corp" }
+    setModalError("");
     try {
       setAuthLoading(true);
-      const result = await signInWithGoogle(); // returns UserCredential
-      // result.user is Firebase User
-      await storeToken(result.user);
-      console.log("Extra profile info:", extraInfo);
 
+      // 1) Sign in with Google
+      const result = await signInWithGoogle(); // returns UserCredential
+      const firebaseUser = result?.user;
+      if (!firebaseUser) throw new Error("No Firebase user returned from sign-in");
+
+      // 2) Get ID token
+      const idToken = await firebaseUser.getIdToken();
+
+      // 3) Call backend /check-user
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+      const resp = await fetch(`${apiBase}/check-user`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify(extraInfo),
+      });
+
+      // 4) Handle backend response
+      if (!resp.ok) {
+        // parse error if possible
+        let body = {};
+        try {
+          body = await resp.json();
+        } catch {
+          /* ignore */
+        }
+
+        // sign the user out to avoid partial auth state
+        try {
+          await logOut();
+        } catch (e) {
+          console.warn("Failed to sign out after backend error:", e);
+        }
+        localStorage.removeItem("fb_token");
+
+        const errMsg = body.detail || body.message || "Registration failed. Please verify company and role.";
+        setModalError(errMsg);
+        return { ok: false, error: errMsg };
+      }
+
+      const data = await resp.json();
+
+      // 5) Success -> store token (we already have idToken)
+      localStorage.setItem("fb_token", idToken);
+
+      // optionally store server user object if you want
+      if (data.user) {
+        try {
+          localStorage.setItem("hh_user", JSON.stringify(data.user));
+        } catch (e) {
+          /* ignore */
+        }
+      }
+
+      // 6) Close modal and redirect to role workspace
+      setModalOpen(false);
+      const serverRole = (data.user?.role || extraInfo.role || "").toLowerCase();
+      if (serverRole === "hr") router.push("/workspace/hr");
+      else router.push("/workspace/recruiter");
+
+      return { ok: true, data };
     } catch (err) {
-      console.error("Login failed:", err);
-      alert("Sign in failed. See console for details.");
+      console.error("Login flow failed:", err);
+      setModalError(err.message || "Login failed");
+      // ensure sign-out cleanup
+      try {
+        await logOut();
+      } catch {}
+      localStorage.removeItem("fb_token");
+      return { ok: false, error: err.message };
     } finally {
       setAuthLoading(false);
     }
@@ -63,11 +133,12 @@ export default function Home() {
   };
 
   const handleModalSubmit = (extraInfo) => {
-    setModalOpen(false);
+    // keep modal open until backend returns; set error inside handleLogin
     handleLogin(extraInfo);
   };
 
   const handleOpenModal = () => {
+    setModalError("");
     setModalOpen(true);
   };
 
@@ -92,9 +163,8 @@ export default function Home() {
         setOpen={setModalOpen}
         onSubmit={handleModalSubmit}
         authLoading={authLoading}
+        serverError={modalError}
       />
     </div>
   );
 }
-
-
