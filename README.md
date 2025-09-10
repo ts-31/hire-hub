@@ -37,11 +37,18 @@ hire-hub/
 ├── client/                                # React/Next.js app
 │   ├── public/                            # Static assets (images, icons, etc.)
 │   └── src/
-│       └── app/                           # Next.js App Router
-│           ├── page.js                    # Landing page
-│           ├── workspace/                 # Workspace pages for logged-in users
-│           │   └── page.js
-│           └── components/                # Reusable UI components
+│       ├── app/                           # Next.js App Router
+│       │   ├── workspace/                 # Workspace pages for logged-in users
+│       │   │   ├── hr/                    # HR-specific pages
+│       │   │   │   └── page.js
+│       │   │   └── recruiter/             # Recruiter-specific pages
+│       │   │       └── page.js
+│       │   ├── global.css                 # Global styles
+│       │   ├── layout.js                  # Root layout for Next.js
+│       │   └── page.js                    # Landing page
+│       ├── components/                    # Reusable UI components
+│       ├── context/                       # React Context providers (auth, etc.)
+│       └── lib/                           # Utility functions (API, helpers)
 ├── server/                                # FastAPI project
 │   └── app/
 │       ├── auth/                          # Authentication related files
@@ -54,7 +61,7 @@ hire-hub/
 │       │   └── users.py                   # Users table model
 │       ├── routers/                       # API routes
 │       │   └── users.py                   # Users-related endpoints
-│       ├── schemas/                      
+│       ├── schemas/                       # Pydantic schemas
 │       └── main.py                        # FastAPI app entry point
 ├── docs/                                  # Documentation and diagrams
 └── README.md                              # Project overview & instructions
