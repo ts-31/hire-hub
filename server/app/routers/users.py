@@ -1,10 +1,28 @@
+# app/routers/users.py  (or wherever your route lives)
 from fastapi import APIRouter, Depends, HTTPException, status, Body
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from app.config.db import get_db
 from app.models.users import User
 from app.auth.dependencies import verify_token
 
+# Firebase admin auth
+from firebase_admin import auth as firebase_auth
+
 router = APIRouter()
+
+
+def _set_custom_claims_safe(uid: str, role: str, company_name: str):
+    """
+    Try to set Firebase custom claims for user. Log errors but do not block DB creation.
+    """
+    try:
+        claims = {"role": role, "company": company_name}
+        firebase_auth.set_custom_user_claims(uid, claims)
+        print(f"[FIREBASE] set_custom_user_claims OK for uid={uid}, claims={claims}")
+    except Exception as e:
+        # Log but don't raise — DB user already created; claims can be retried later
+        print(f"[FIREBASE ERROR] Failed setting custom claims for uid={uid}: {e}")
 
 
 @router.post("/check-user")
@@ -29,16 +47,19 @@ def check_user(
     if not payload:
         user = db.query(User).filter(User.firebase_uid == uid).first()
         if user:
-            return {
-                "message": "User exists",
-                "user": {
-                    "uid": user.firebase_uid,
-                    "name": user.name,
-                    "email": user.email,
-                    "role": user.role,
-                    "company_name": user.company_name,
+            return JSONResponse(
+                content={
+                    "message": "User exists",
+                    "user": {
+                        "uid": user.firebase_uid,
+                        "name": user.name,
+                        "email": user.email,
+                        "role": user.role,
+                        "company_name": user.company_name,
+                    },
                 },
-            }
+                status_code=status.HTTP_200_OK,
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User is not registered",
@@ -86,16 +107,25 @@ def check_user(
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {
-            "message": "HR user created successfully",
-            "user": {
-                "uid": new_user.firebase_uid,
-                "name": new_user.name,
-                "email": new_user.email,
-                "role": new_user.role,
-                "company_name": new_user.company_name,
+
+        # Set custom claims in Firebase (best-effort)
+        _set_custom_claims_safe(
+            new_user.firebase_uid, new_user.role, new_user.company_name
+        )
+
+        return JSONResponse(
+            content={
+                "message": "HR user created successfully",
+                "user": {
+                    "uid": new_user.firebase_uid,
+                    "name": new_user.name,
+                    "email": new_user.email,
+                    "role": new_user.role,
+                    "company_name": new_user.company_name,
+                },
             },
-        }, status.HTTP_201_CREATED
+            status_code=status.HTTP_201_CREATED,
+        )
 
     # Recruiter registration: company MUST exist
     if role.lower() == "recruiter":
@@ -116,16 +146,25 @@ def check_user(
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-        return {
-            "message": "Recruiter user created successfully",
-            "user": {
-                "uid": new_user.firebase_uid,
-                "name": new_user.name,
-                "email": new_user.email,
-                "role": new_user.role,
-                "company_name": new_user.company_name,
+
+        # Set custom claims in Firebase (best-effort)
+        _set_custom_claims_safe(
+            new_user.firebase_uid, new_user.role, new_user.company_name
+        )
+
+        return JSONResponse(
+            content={
+                "message": "Recruiter user created successfully",
+                "user": {
+                    "uid": new_user.firebase_uid,
+                    "name": new_user.name,
+                    "email": new_user.email,
+                    "role": new_user.role,
+                    "company_name": new_user.company_name,
+                },
             },
-        }, status.HTTP_201_CREATED
+            status_code=status.HTTP_201_CREATED,
+        )
 
     # Invalid role
     raise HTTPException(

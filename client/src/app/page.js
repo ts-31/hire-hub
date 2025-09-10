@@ -35,7 +35,6 @@ export default function Home() {
     }
   };
 
-  // Core flow: sign in with Google THEN call backend /check-user with role & company
   const handleLogin = async (extraInfo) => {
     // extraInfo = { role: "HR" | "Recruiter", company_name: "Acme Corp" }
     setModalError("");
@@ -45,9 +44,10 @@ export default function Home() {
       // 1) Sign in with Google
       const result = await signInWithGoogle(); // returns UserCredential
       const firebaseUser = result?.user;
-      if (!firebaseUser) throw new Error("No Firebase user returned from sign-in");
+      if (!firebaseUser)
+        throw new Error("No Firebase user returned from sign-in");
 
-      // 2) Get ID token
+      // 2) Get ID token (initial token) to authenticate the /check-user call
       const idToken = await firebaseUser.getIdToken();
 
       // 3) Call backend /check-user
@@ -79,17 +79,32 @@ export default function Home() {
         }
         localStorage.removeItem("fb_token");
 
-        const errMsg = body.detail || body.message || "Registration failed. Please verify company and role.";
+        const errMsg =
+          body.detail ||
+          body.message ||
+          "Registration failed. Please verify company and role.";
         setModalError(errMsg);
         return { ok: false, error: errMsg };
       }
 
       const data = await resp.json();
 
-      // 5) Success -> store token (we already have idToken)
-      localStorage.setItem("fb_token", idToken);
+      // 5) IMPORTANT: Force refresh the ID token so it includes custom claims set by backend
+      //    (this is required because claims are not present in the initial token)
+      try {
+        const refreshedToken = await firebaseUser.getIdToken(true); // force refresh
+        localStorage.setItem("fb_token", refreshedToken);
+      } catch (refreshErr) {
+        // If refresh fails, still proceed but log
+        console.warn(
+          "Failed to refresh ID token after registration:",
+          refreshErr
+        );
+        // fallback: store the original token
+        localStorage.setItem("fb_token", idToken);
+      }
 
-      // optionally store server user object if you want
+      // 6) Optionally store user object returned by server
       if (data.user) {
         try {
           localStorage.setItem("hh_user", JSON.stringify(data.user));
@@ -98,9 +113,13 @@ export default function Home() {
         }
       }
 
-      // 6) Close modal and redirect to role workspace
+      // 7) Close modal and redirect to role workspace
       setModalOpen(false);
-      const serverRole = (data.user?.role || extraInfo.role || "").toLowerCase();
+      const serverRole = (
+        data.user?.role ||
+        extraInfo.role ||
+        ""
+      ).toLowerCase();
       if (serverRole === "hr") router.push("/workspace/hr");
       else router.push("/workspace/recruiter");
 
