@@ -7,44 +7,6 @@ Authentication is handled via **Firebase Google Sign-In** with role-based access
 
 ---
 
-## 🚀 MVP Flow
-
-### Recruiter Flow
-1. User selects **Recruiter** role.  
-2. Sign in with Google → store Firebase token.  
-3. Autofill **Name** and **Email** from token + autofill **Role** from earlier selection.  
-4. Enter **Company Name**.  
-5. Click **Register** → backend flow:
-   - Check if company exists.  
-     - ❌ If not found → return error: *Company not found*.  
-     - ✅ If found → verify token, then store user (`name`, `email`, `company_id`, `role`) in DB.  
-6. Recruiter options after login:
-   - **Create Job** or **Upload Resumes**.  
-   - Must create/select a job before uploading resumes.  
-   - Upload resumes (limit: 20 per batch).  
-   - Backend uploads resumes to S3 → parses → stores in DB one by one:  
-     ```
-     candidate_id (PK), recruiter_id (FK), job_id (FK), resume_url,
-     resume_text (parsed), created_at, status (shortlisted: true/false)
-     ```
-   - Run matching algorithm to shortlist candidates.  
-   - Apply filters (e.g., CGPA > 7).  
-
-### HR Flow
-1. User selects **HR** role.  
-2. Sign in with Google → store Firebase token.  
-3. Autofill **Name** and **Email** from token + autofill **Role** from earlier selection.  
-4. Enter **Company Name**.  
-5. Click **Register** → backend flow:
-   - Check if company exists.  
-     - ✅ If found → return error: *Company already exists*.  
-     - ❌ If not found → verify token, create new company, then store HR user in DB.  
-6. HR after login:  
-   - View **all jobs** created by recruiters from their company.  
-   - View shortlisted candidates.  
-
----
-
 ## ✨ Features
 
 - Upload resumes (single or bulk `.zip`) → stored in **Amazon S3**  
@@ -72,17 +34,30 @@ Authentication is handled via **Firebase Google Sign-In** with role-based access
 
 ```
 hire-hub/
-   ├── client/                                # React/Next.js app
-   │   ├── public/                            # Static assets
-   │   └── src/
-   │       └── app/                           # Next.js App Router
-   │           ├── page.js                    # Landing page
-   │           ├── workspace/                 # Workspace pages
-   │           │   └── page.js
-   │           └── components/                # Reusable UI components
-   ├── server/                                # FastAPI project
-   ├── docs/                                  # Documentation and diagrams
-   └── README.md
+├── client/                                # React/Next.js app
+│   ├── public/                            # Static assets (images, icons, etc.)
+│   └── src/
+│       └── app/                           # Next.js App Router
+│           ├── page.js                    # Landing page
+│           ├── workspace/                 # Workspace pages for logged-in users
+│           │   └── page.js
+│           └── components/                # Reusable UI components
+├── server/                                # FastAPI project
+│   └── app/
+│       ├── auth/                          # Authentication related files
+│       │   └── dependencies.py            # Role & token verification
+│       ├── config/                        # Configuration files
+│       │   └── db.py                      # Database connection setup
+│       ├── core/                          # Core utilities
+│       │   └── firebase.py                # Firebase auth integration
+│       ├── models/                        # Database models
+│       │   └── users.py                   # Users table model
+│       ├── routers/                       # API routes
+│       │   └── users.py                   # Users-related endpoints
+│       ├── schemas/                      
+│       └── main.py                        # FastAPI app entry point
+├── docs/                                  # Documentation and diagrams
+└── README.md                              # Project overview & instructions
 ```
 
 ---
@@ -96,7 +71,7 @@ hire-hub/
 
 2. Install backend dependencies:  
    ```bash
-   cd backend
+   cd server
    pip install -r requirements.txt
    ```
 
@@ -104,10 +79,14 @@ hire-hub/
 
 4. Start the backend:  
    ```bash
-   uvicorn hirehub.main:app --reload
+   uvicorn app.main:app --reload
    ```
 
 5. Start the frontend (React/Next.js) and connect to the backend.
+   ```bash
+    cd client
+    npm run dev
+   ```
 
 ---
 
@@ -134,5 +113,4 @@ The backend verifies roles before allowing API access.
 - MVP supports **1 HR per company** but allows **many Recruiters**.  
 - `firebase_uid` is stored in DB for secure token verification & user mapping.  
 - Constraints:  
-  - `UNIQUE(company_name)` on companies table.  
   - `UNIQUE(firebase_uid)` on users table.  
