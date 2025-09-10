@@ -1,9 +1,9 @@
-// src/app/page.js
 "use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
+import { toast } from "react-hot-toast";
 
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
@@ -19,7 +19,6 @@ export default function Home() {
   const [authLoading, setAuthLoading] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalError, setModalError] = useState("");
 
   // Keep a local copy of whether user is signed in to immediately render UI
   const isSignedIn = !!user;
@@ -37,7 +36,6 @@ export default function Home() {
 
   const handleLogin = async (extraInfo) => {
     // extraInfo = { role: "HR" | "Recruiter", company_name: "Acme Corp" }
-    setModalError("");
     try {
       setAuthLoading(true);
 
@@ -83,7 +81,9 @@ export default function Home() {
           body.detail ||
           body.message ||
           "Registration failed. Please verify company and role.";
-        setModalError(errMsg);
+
+        // show toast error instead of inline error
+        toast.error(errMsg);
         return { ok: false, error: errMsg };
       }
 
@@ -113,8 +113,12 @@ export default function Home() {
         }
       }
 
-      // 7) Close modal and redirect to role workspace
+      // 7) Close modal, show success toast, and redirect to role workspace
       setModalOpen(false);
+
+      // show success toast first
+      toast.success("Signed in successfully");
+
       const serverRole = (
         data.user?.role ||
         extraInfo.role ||
@@ -126,13 +130,16 @@ export default function Home() {
       return { ok: true, data };
     } catch (err) {
       console.error("Login flow failed:", err);
-      setModalError(err.message || "Login failed");
+
+      const msg = err?.message || "Login failed";
+      toast.error(msg);
+
       // ensure sign-out cleanup
       try {
         await logOut();
       } catch {}
       localStorage.removeItem("fb_token");
-      return { ok: false, error: err.message };
+      return { ok: false, error: msg };
     } finally {
       setAuthLoading(false);
     }
@@ -144,8 +151,10 @@ export default function Home() {
       await logOut();
       localStorage.removeItem("fb_token");
       setProfileOpen(false);
+      toast.success("Logged out");
     } catch (err) {
       console.error("Logout failed:", err);
+      toast.error("Logout failed");
     } finally {
       setAuthLoading(false);
     }
@@ -157,7 +166,6 @@ export default function Home() {
   };
 
   const handleOpenModal = () => {
-    setModalError("");
     setModalOpen(true);
   };
 
@@ -182,7 +190,6 @@ export default function Home() {
         setOpen={setModalOpen}
         onSubmit={handleModalSubmit}
         authLoading={authLoading}
-        serverError={modalError}
       />
     </div>
   );
