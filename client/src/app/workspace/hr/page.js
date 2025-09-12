@@ -12,10 +12,28 @@ export default function HRWorkspacePage() {
   const handleLogout = async () => {
     try {
       setAuthLoading(true);
-      await logOut();
-      localStorage.removeItem("fb_token");
+
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+      // 1) Call backend to clear session cookie
+      try {
+        await fetch(`${apiBase}/session-logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (e) {
+        console.warn("Failed to call session-logout:", e);
+      }
+
+      // 2) Sign out from Firebase client SDK
+      try {
+        await logOut();
+      } catch (e) {
+        console.warn("Firebase signOut failed:", e);
+      }
+
       toast.success("Logged out");
-      // Optionally redirect to home
+      // 3) Redirect to home
       window.location.href = "/";
     } catch (err) {
       console.error("Logout failed:", err);

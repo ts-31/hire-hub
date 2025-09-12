@@ -23,23 +23,12 @@ export default function Home() {
   // Keep a local copy of whether user is signed in to immediately render UI
   const isSignedIn = !!user;
 
-  // helper: store token in localStorage
-  const storeToken = async (credentialUser) => {
-    try {
-      if (!credentialUser) return;
-      const token = await credentialUser.getIdToken();
-      localStorage.setItem("fb_token", token);
-    } catch (err) {
-      console.error("Failed to get/store token:", err);
-    }
-  };
-
   const handleLogin = async (extraInfo) => {
     // extraInfo = { role: "HR" | "Recruiter", company_name: "Acme Corp" }
     try {
       setAuthLoading(true);
 
-      // 1) Sign in with Google
+      // 1) Sign in with Google (Firebase Web SDK)
       const result = await signInWithGoogle(); // returns UserCredential
       const firebaseUser = result?.user;
       if (!firebaseUser)
@@ -48,7 +37,7 @@ export default function Home() {
       // 2) Get ID token (initial token) to authenticate the /check-user call
       const idToken = await firebaseUser.getIdToken();
 
-      // 3) Call backend /check-user
+      // 3) Call backend /check-user (server will create/set session cookie)
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
       const resp = await fetch(`${apiBase}/check-user`, {
         method: "POST",
@@ -56,6 +45,8 @@ export default function Home() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${idToken}`,
         },
+        // IMPORTANT: allow cookies to be set by server / included on future requests
+        credentials: "include",
         body: JSON.stringify(extraInfo),
       });
 
@@ -69,42 +60,28 @@ export default function Home() {
           /* ignore */
         }
 
-        // sign the user out to avoid partial auth state
+        // sign the user out to avoid partial auth state on the client SDK
         try {
           await logOut();
         } catch (e) {
           console.warn("Failed to sign out after backend error:", e);
         }
-        localStorage.removeItem("fb_token");
 
         const errMsg =
           body.detail ||
           body.message ||
           "Registration failed. Please verify company and role.";
 
-        // show toast error instead of inline error
         toast.error(errMsg);
         return { ok: false, error: errMsg };
       }
 
       const data = await resp.json();
 
-      // 5) IMPORTANT: Force refresh the ID token so it includes custom claims set by backend
-      //    (this is required because claims are not present in the initial token)
-      try {
-        const refreshedToken = await firebaseUser.getIdToken(true); // force refresh
-        localStorage.setItem("fb_token", refreshedToken);
-      } catch (refreshErr) {
-        // If refresh fails, still proceed but log
-        console.warn(
-          "Failed to refresh ID token after registration:",
-          refreshErr
-        );
-        // fallback: store the original token
-        localStorage.setItem("fb_token", idToken);
-      }
+      // 5) IMPORTANT: Do NOT store the ID token in localStorage.
+      // The server sets an HttpOnly session cookie; we use data.user for UI.
 
-      // 6) Optionally store user object returned by server
+      // 6) Optionally store only the profile object returned by server
       if (data.user) {
         try {
           localStorage.setItem("hh_user", JSON.stringify(data.user));
@@ -115,8 +92,6 @@ export default function Home() {
 
       // 7) Close modal, show success toast, and redirect to role workspace
       setModalOpen(false);
-
-      // show success toast first
       toast.success("Signed in successfully");
 
       const serverRole = (
@@ -134,11 +109,10 @@ export default function Home() {
       const msg = err?.message || "Login failed";
       toast.error(msg);
 
-      // ensure sign-out cleanup
+      // ensure sign-out cleanup of the Firebase client
       try {
         await logOut();
       } catch {}
-      localStorage.removeItem("fb_token");
       return { ok: false, error: msg };
     } finally {
       setAuthLoading(false);
@@ -148,8 +122,29 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       setAuthLoading(true);
-      await logOut();
-      localStorage.removeItem("fb_token");
+
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
+
+      // 1) Tell backend to clear session cookie (credentials included)
+      try {
+        await fetch(`${apiBase}/session-logout`, {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (e) {
+        console.warn("Failed to call session-logout:", e);
+      }
+
+      // 2) Also sign out from Firebase client SDK (clears client state)
+      try {
+        await logOut();
+      } catch (e) {
+        console.warn("Firebase signOut failed:", e);
+      }
+
+      // 3) Clear client-side stored profile (not tokens)
+      localStorage.removeItem("hh_user");
+
       setProfileOpen(false);
       toast.success("Logged out");
     } catch (err) {
