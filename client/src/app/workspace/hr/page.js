@@ -1,13 +1,25 @@
 "use client";
 
-import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
+import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 
 export default function HRWorkspacePage() {
-  const { user, logOut } = useAuth();
+  const [user, setUser] = useState(null); // now using localStorage
   const [profileOpen, setProfileOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
+
+  // Read hh_user from localStorage on mount
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("hh_user");
+      if (storedUser) {
+        setUser(JSON.parse(storedUser));
+      }
+    } catch (err) {
+      console.error("Failed to read user from localStorage:", err);
+      toast.error("Failed to load user info");
+    }
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -15,7 +27,7 @@ export default function HRWorkspacePage() {
 
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-      // 1) Call backend to clear session cookie
+      // Call backend to clear session cookie
       try {
         await fetch(`${apiBase}/session-logout`, {
           method: "POST",
@@ -25,15 +37,10 @@ export default function HRWorkspacePage() {
         console.warn("Failed to call session-logout:", e);
       }
 
-      // 2) Sign out from Firebase client SDK
-      try {
-        await logOut();
-      } catch (e) {
-        console.warn("Firebase signOut failed:", e);
-      }
+      // Clear localStorage
+      localStorage.removeItem("hh_user");
 
       toast.success("Logged out");
-      // 3) Redirect to home
       window.location.href = "/";
     } catch (err) {
       console.error("Logout failed:", err);
@@ -43,6 +50,8 @@ export default function HRWorkspacePage() {
       setProfileOpen(false);
     }
   };
+
+  if (!user) return <p>Loading user info...</p>;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,22 +65,19 @@ export default function HRWorkspacePage() {
             onClick={() => setProfileOpen((s) => !s)}
             className="flex items-center gap-3 bg-white border border-gray-200 px-3 py-1 rounded-full hover:shadow-md transition"
           >
-            {user?.photoURL ? (
+            {user.photoURL ? (
               <img
                 src={user.photoURL}
-                alt={user.displayName || "profile"}
+                alt={user.name || "profile"}
                 className="w-8 h-8 rounded-full object-cover"
               />
             ) : (
               <div className="w-8 h-8 rounded-full bg-[#06B6D4] text-white flex items-center justify-center font-semibold">
-                {(user?.displayName || user?.email || "U")
-                  .toString()
-                  .slice(0, 1)
-                  .toUpperCase()}
+                {(user.name || user.email || "U").slice(0, 1).toUpperCase()}
               </div>
             )}
             <span className="text-sm font-medium text-[#1E3A8A]">
-              {user?.displayName || user?.email}
+              {user.name || user.email}
             </span>
             <svg
               className="w-4 h-4 text-gray-500"
@@ -93,10 +99,10 @@ export default function HRWorkspacePage() {
             <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
               <div className="p-3 border-b border-gray-100">
                 <div className="text-sm font-semibold text-gray-800">
-                  {user?.displayName}
+                  {user.name}
                 </div>
                 <div className="text-xs text-gray-500 truncate">
-                  {user?.email}
+                  {user.email}
                 </div>
               </div>
               <ul className="py-1">

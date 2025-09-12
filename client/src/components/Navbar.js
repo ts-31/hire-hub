@@ -1,4 +1,3 @@
-// src/components/Navbar.js
 export default function Navbar({
   isSignedIn,
   handleLogin,
@@ -29,7 +28,6 @@ export default function Navbar({
                 <button
                   className="bg-[#0D9488] hover:bg-[#0F766E] text-white px-4 py-2 rounded-lg text-sm font-medium transition-all transform hover:scale-105"
                   onClick={() => {
-                    // Scroll to CTA or take to register flow later
                     const el = document.querySelector(
                       "section.py-20.bg-gradient-to-br"
                     );
@@ -40,28 +38,27 @@ export default function Navbar({
                 </button>
               </>
             ) : (
-              // Profile avatar + dropdown
               <div className="relative">
                 <button
                   onClick={() => setProfileOpen((s) => !s)}
                   className="flex items-center gap-3 bg-white border border-gray-200 px-3 py-1 rounded-full hover:shadow-md transition"
                 >
-                  {user.photoURL ? (
+                  {user?.photoURL ? (
                     <img
                       src={user.photoURL}
-                      alt={user.displayName || "profile"}
+                      alt={user.name || "profile"}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-[#06B6D4] text-white flex items-center justify-center font-semibold">
-                      {(user.displayName || user.email || "U")
+                      {(user?.name || user?.email || "U")
                         .toString()
                         .slice(0, 1)
                         .toUpperCase()}
                     </div>
                   )}
                   <span className="text-sm font-medium text-[#1E3A8A]">
-                    {user.displayName || user.email}
+                    {user?.name || user?.email}
                   </span>
                   <svg
                     className="w-4 h-4 text-gray-500"
@@ -83,20 +80,16 @@ export default function Navbar({
                   <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-20">
                     <div className="p-3 border-b border-gray-100">
                       <div className="text-sm font-semibold text-gray-800">
-                        {user.displayName}
+                        {user?.name || user?.email}
                       </div>
                       <div className="text-xs text-gray-500 truncate">
-                        {user.email}
+                        {user?.email}
                       </div>
                     </div>
                     <ul className="py-1">
                       <li>
                         <button
-                          onClick={() => {
-                            // route to dashboard later; for now close menu
-                            setProfileOpen(false);
-                            // TODO: router.push('/dashboard');
-                          }}
+                          onClick={() => setProfileOpen(false)}
                           className="w-full text-left px-4 py-2 text-sm hover:bg-gray-50"
                         >
                           Dashboard
