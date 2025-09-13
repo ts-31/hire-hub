@@ -48,16 +48,23 @@ export default function Home() {
       // 2) Get ID token
       const idToken = await firebaseUser.getIdToken();
 
-      // 3) Call backend /check-user
-      const resp = await fetch(`${apiBase}/check-user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${idToken}`,
-        },
-        credentials: "include",
-        body: JSON.stringify(extraInfo),
-      });
+      // 3) Call backend /check-user (safe fetch)
+      let resp;
+      try {
+        resp = await fetch(`${apiBase}/check-user`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${idToken}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(extraInfo),
+        });
+      } catch (networkErr) {
+        console.warn("Backend unreachable:", networkErr);
+        toast.error("Server unreachable. Please try again later.");
+        return { ok: false, error: "server-unreachable" }; // ✅ no throw
+      }
 
       if (!resp.ok) {
         let body = {};
@@ -74,7 +81,7 @@ export default function Home() {
 
       const data = await resp.json();
 
-      // 4) Save user profile to localStorage
+      // 4) Save user profile
       if (data.user) {
         localStorage.setItem("hh_user", JSON.stringify(data.user));
         setUser(data.user);
@@ -83,7 +90,7 @@ export default function Home() {
       setModalOpen(false);
       toast.success("Signed in successfully");
 
-      // 5) Redirect based on role
+      // 5) Redirect
       const serverRole = (
         data.user?.role ||
         extraInfo.role ||
@@ -94,7 +101,7 @@ export default function Home() {
 
       return { ok: true, data };
     } catch (err) {
-      console.error("Login failed:", err);
+      console.error("Login failed:", err); // ✅ still logged, but no red overlay
       toast.error(err?.message || "Login failed");
       return { ok: false, error: err?.message };
     } finally {
