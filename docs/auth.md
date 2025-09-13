@@ -1,6 +1,6 @@
 # Authentication and User Flow Documentation
 
-This document explains how **Login** and **Registration** work in the system using a single route (`/check-user`). It also covers the migration to session cookies for authentication.
+This document explains how **Login**, **Registration**, and **Frontend Access Control** work in the system using a single route (`/check-user`). It also covers the migration to **session cookies** for authentication and the use of **Next.js middleware** for route-level access control.
 
 ---
 
@@ -11,8 +11,8 @@ This document explains how **Login** and **Registration** work in the system usi
 - They can log in using **Sign in with Google** (Firebase handles authentication).
 - On successful login, Firebase returns an **ID token**.
 - The token is sent to backend (`/check-user`) for verification.
-- Upon successful verification, a session cookie is set in the response (valid for 14 days).
-- Client stores user profile in localStorage as "hh_user" for displaying user info (e.g., name, role).
+- Upon successful verification, a **session cookie** is set in the response (valid for 14 days).
+- Client stores user profile in localStorage as `hh_user` for displaying user info (e.g., name, role).
 
 ### 2. Dual-Mode `/check-user` Endpoint
 The `/check-user` route handles **both login and registration** depending on the request body. It requires `Authorization: Bearer <id_token>`.
@@ -25,19 +25,19 @@ The `/check-user` route handles **both login and registration** depending on the
 
 #### **Registration Mode**
 - **Request**: `POST /check-user` with JSON body containing:
-  ```json
-  {
-    "role": "HR or Recruiter",
-    "company_name": "Some Company"
-  }
-  ```
+```json
+{
+  "role": "HR or Recruiter",
+  "company_name": "Some Company"
+}
+```
 - Registration requires **role** and **company_name**.
 - Upon success, sets Firebase custom claims and session cookie.
 
 ### 3. Logout
 - **Request**: `POST /session-logout` (no body required).
 - Clears the session cookie by setting an expired cookie.
-- Client removes "hh_user" from localStorage.
+- Client removes `hh_user` from localStorage.
 - Response: `200 OK` with message "Logged out".
 
 ---
@@ -61,25 +61,31 @@ The `/check-user` route handles **both login and registration** depending on the
 
 ---
 
+## 🔑 Frontend Access Control (Next.js Middleware)
+- Middleware runs on **all `/` and `/workspace/*` routes**.
+- Reads the **session cookie (HttpOnly)** and decodes the role to determine which pages a user can access.
+
+### Rules Implemented:
+1. **Logged-out users**: cannot access `/workspace/*`, always redirected to `/`.
+2. **Logged-in users**:
+   - Visiting `/` → redirected to their workspace based on role (`/workspace/hr` or `/workspace/recruiter`).
+   - Visiting the **wrong workspace** → redirected to their correct workspace.
+3. **Landing page (`/`)** is accessible only to logged-out users. Logged-in users trying to access `/` are automatically redirected to their workspace.
+
+**Note:** Middleware **decodes the cookie for UX purposes** (redirects), but the backend **still validates the cookie** for all API calls. Middleware does not replace backend security.
+
+---
+
 ## 🔄 Summary of Flow
-
-1. **User Clicks Login**
-   - Option A → Login with Google
-     - If user exists → logged in ✅ (session cookie set, hh_user stored in localStorage)
-     - If not registered → must register
-   - Option B → Register (must provide role + company name)
-
-2. **Registration Rules**
-   - HR → company must not exist
-   - Recruiter → company must exist
-
-3. **Single Unified Route (`/check-user`)**
-   - No body → login check (sets cookie on success, stores hh_user)
-   - With body (role + company_name) → registration (sets cookie on success, stores hh_user)
-
-4. **Logout**
-   - Clears session cookie via `/session-logout`.
-   - Removes hh_user from localStorage.
+1. User clicks login/register on landing page (`/`).
+2. Backend verifies Firebase ID token via `/check-user` and sets session cookie.
+3. Middleware:
+   - Redirects logged-in users away from `/` to their workspace.
+   - Blocks access to other roles’ workspace pages.
+4. User can only access pages relevant to their role:
+   - HR → `/workspace/hr`
+   - Recruiter → `/workspace/recruiter`
+5. Logout clears the session cookie and removes `hh_user` from localStorage. Middleware redirects them back to `/`.
 
 ---
 
@@ -125,7 +131,6 @@ Content-Type: application/json
   "company_name": "Acme Corp"
 }
 ```
-
 **Response (201 Created):** (Sets `session` cookie)
 ```json
 {
@@ -153,7 +158,6 @@ Content-Type: application/json
   "company_name": "Acme Corp"
 }
 ```
-
 **Response (201 Created):** (Sets `session` cookie)
 ```json
 {
@@ -185,10 +189,11 @@ POST /session-logout
 
 ## ✅ Key Points
 - **Single route** for login and registration → `/check-user`.
-- **Login** = no request body (sets cookie on success, stores hh_user in localStorage for UI).
-- **Registration** = requires `role` + `company_name` (sets cookie on success, stores hh_user in localStorage for UI).
-- HR creates the company, Recruiters join existing companies.
-- Firebase custom claims store role + company for each user.
-- Session cookies replace bearer tokens + local storage for authentication (14-day expiry). Do NOT store ID tokens in localStorage.
-- Client stores only the user profile (hh_user) in localStorage to display user info.
-- Logout clears the session cookie and removes hh_user from localStorage.
+- **Session cookies** replace bearer tokens; do **not store ID tokens in localStorage**.
+- Client stores **only the user profile** (`hh_user`) in localStorage for UI display.
+- Middleware ensures **role-based frontend access**:
+  - Logged-in users are redirected to their workspace.
+  - Users cannot access workspaces not assigned to their role.
+  - Landing page `/` is only for logged-out users.
+- Backend **remains the final authority** for data access.
+
