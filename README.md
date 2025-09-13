@@ -49,6 +49,7 @@ hire-hub/
 │       ├── components/                    # Reusable UI components
 │       ├── context/                       # React Context providers (auth, etc.)
 │       └── lib/                           # Utility functions (API, helpers)
+│       └── middleware.js                  # Next.js middleware for route access
 ├── server/                                # FastAPI project
 │   └── app/
 │       ├── auth/                          # Authentication related files
