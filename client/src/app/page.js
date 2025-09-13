@@ -105,29 +105,35 @@ export default function Home() {
   const handleLogout = async () => {
     try {
       setAuthLoading(true);
-
       const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
-      // 1) Clear backend session cookie
+      let res;
       try {
-        await fetch(`${apiBase}/session-logout`, {
+        res = await fetch(`${apiBase}/session-logout`, {
           method: "POST",
           credentials: "include",
         });
-      } catch (e) {
-        console.warn("Failed to call session-logout:", e);
+      } catch (fetchErr) {
+        console.warn("Failed to reach backend:", fetchErr);
+        toast.error("Logout failed (server unreachable)");
+        return; // stop execution here, don't clear localstorage
       }
 
-      // 2) Clear localStorage
+      if (!res.ok) {
+        console.warn("Server responded with error:", res.status);
+        toast.error("Logout failed");
+        return;
+      }
+
+      // ✅ Only clear local storage if server responded OK
       localStorage.removeItem("hh_user");
-      setUser(null);
-      setProfileOpen(false);
+      console.log("session cookie + localstorage cleared");
+
       toast.success("Logged out");
-    } catch (err) {
-      console.error("Logout failed:", err);
-      toast.error("Logout failed");
+      window.location.href = "/";
     } finally {
       setAuthLoading(false);
+      setProfileOpen(false);
     }
   };
 
