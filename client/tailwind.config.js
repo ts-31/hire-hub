@@ -12,6 +12,9 @@ module.exports = {
         primary: "var(--color-primary)",
         secondary: "var(--color-secondary)",
         accent: "var(--color-accent)",
+
+        foreground: "var(--color-foreground)",
+        "foreground-muted": "var(--color-foreground-muted)",
       },
     },
   },
