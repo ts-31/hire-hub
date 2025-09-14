@@ -1,24 +1,24 @@
 // src/components/Features.js
 export default function Features() {
   return (
-    <section className="py-20 bg-[#E5E7EB]">
+    <section className="py-20 bg-surface-1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#1E3A8A] mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-secondary mb-4">
             Powerful Features for Modern Recruiting
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Everything you need to manage resumes efficiently and find the
-            right candidates
+          <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
+            Everything you need to manage resumes efficiently and find the right
+            candidates
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* Feature 1 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -31,10 +31,10 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               Smart Upload System
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-foreground-muted leading-relaxed">
               Upload single resumes or bulk process folders via ZIP files.
               Integrated with AWS S3 for secure, scalable storage.
             </p>
@@ -42,9 +42,9 @@ export default function Features() {
 
           {/* Feature 2 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -57,10 +57,10 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               Background Processing
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-foreground-muted leading-relaxed">
               Automated resume parsing and structured data extraction. Parsed
               data is stored in PostgreSQL for fast queries.
             </p>
@@ -68,9 +68,9 @@ export default function Features() {
 
           {/* Feature 3 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -83,10 +83,10 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               Intelligent Matching
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-foreground-muted leading-relaxed">
               Algorithms match candidates based on skills, experience, and job
               requirements to produce ranked results.
             </p>
@@ -94,9 +94,9 @@ export default function Features() {
 
           {/* Feature 4 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -109,20 +109,20 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               Advanced Filtering
             </h3>
-            <p className="text-gray-600 leading-relaxed">
-              Filter candidates by experience, skill sets, education, and
-              custom criteria to quickly find the best matches.
+            <p className="text-foreground-muted leading-relaxed">
+              Filter candidates by experience, skill sets, education, and custom
+              criteria to quickly find the best matches.
             </p>
           </div>
 
           {/* Feature 5 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -135,10 +135,10 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               Smart Shortlisting
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-foreground-muted leading-relaxed">
               Recruiters can create shortlists with notes and ratings for a
               smooth handoff to HR.
             </p>
@@ -146,9 +146,9 @@ export default function Features() {
 
           {/* Feature 6 */}
           <div className="bg-white border border-gray-200 rounded-2xl p-8 hover:shadow-xl transition-all transform hover:-translate-y-2 group">
-            <div className="w-12 h-12 bg-[#F0FDFA] rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
+            <div className="w-12 h-12 bg-surface-2 rounded-xl flex items-center justify-center mb-6 group-hover:bg-[#D2F5EE] transition-colors">
               <svg
-                className="w-6 h-6 text-[#1E3A8A]"
+                className="w-6 h-6 text-secondary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -161,10 +161,10 @@ export default function Features() {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-[#1E3A8A] mb-3">
+            <h3 className="text-xl font-semibold text-secondary mb-3">
               HR Dashboard
             </h3>
-            <p className="text-gray-600 leading-relaxed">
+            <p className="text-foreground-muted leading-relaxed">
               A concise dashboard for HR to view jobs, shortlisted candidates,
               and manage the hiring pipeline.
             </p>

@@ -1,24 +1,24 @@
 // src/components/HowItWorks.js
 export default function HowItWorks() {
   return (
-    <section className="py-20 bg-gradient-to-b from-[#E5E7EB] to-[#E5E7EB]">
+    <section className="py-20 bg-surface-1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <h2 className="text-3xl lg:text-4xl font-bold text-[#1E3A8A] mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-secondary mb-4">
             How HireHub Works
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-foreground-muted max-w-2xl mx-auto">
             Simple workflows designed for both Recruiters and HR teams
           </p>
         </div>
 
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Recruiter Flow */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-surface-2">
             <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-[#F0FDFA] rounded-lg flex items-center justify-center mr-4">
+              <div className="w-10 h-10 bg-surface-2 rounded-lg flex items-center justify-center mr-4">
                 <svg
-                  className="w-5 h-5 text-[#1E3A8A]"
+                  className="w-5 h-5 text-secondary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -31,51 +31,56 @@ export default function HowItWorks() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-[#1E3A8A]">
+              <h3 className="text-2xl font-bold text-secondary">
                 Recruiter Workflow
               </h3>
             </div>
+
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">1</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Upload resumes individually or in bulk via ZIP files to get
                   started quickly
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">2</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   System parses and extracts candidate information in the
                   background
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">3</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Use filters to find candidates matching specific job
                   requirements
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">4</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Apply the matching algorithm based on skills and experience
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">5</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Create shortlists with ratings and notes for HR handoff
                 </p>
               </div>
@@ -83,11 +88,11 @@ export default function HowItWorks() {
           </div>
 
           {/* HR Flow */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+          <div className="bg-white rounded-2xl p-8 shadow-lg border border-surface-2">
             <div className="flex items-center mb-6">
-              <div className="w-10 h-10 bg-[#EEF2FF] rounded-lg flex items-center justify-center mr-4">
+              <div className="w-10 h-10 bg-surface-3 rounded-lg flex items-center justify-center mr-4">
                 <svg
-                  className="w-5 h-5 text-[#1E3A8A]"
+                  className="w-5 h-5 text-secondary"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -100,50 +105,54 @@ export default function HowItWorks() {
                   />
                 </svg>
               </div>
-              <h3 className="text-2xl font-bold text-[#1E3A8A]">
+              <h3 className="text-2xl font-bold text-secondary">
                 HR Team Workflow
               </h3>
             </div>
+
             <div className="space-y-4">
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">1</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Access a dashboard showing active job postings and
                   requirements
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">2</span>
                 </div>
-                <p className="text-gray-700">
-                  Review shortlisted candidates with recruiter notes and
-                  scores
+                <p className="text-foreground">
+                  Review shortlisted candidates with recruiter notes and scores
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">3</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   View detailed candidate profiles with parsed resume data
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">4</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Track hiring pipeline and manage interview scheduling
                 </p>
               </div>
+
               <div className="flex items-start">
-                <div className="w-6 h-6 bg-[#0D9488] rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center mr-3 mt-1 flex-shrink-0">
                   <span className="text-white text-xs font-bold">5</span>
                 </div>
-                <p className="text-gray-700">
+                <p className="text-foreground">
                   Generate reports on hiring performance and candidate quality
                 </p>
               </div>

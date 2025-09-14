@@ -145,7 +145,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#E5E7EB]">
+    <div className="min-h-screen bg-surface-1">
       <Navbar
         isSignedIn={isSignedIn}
         handleLogin={() => setModalOpen(true)}
