@@ -4,13 +4,13 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import Features from "@/components/Features";
-import HowItWorks from "@/components/HowItWorks";
-import CTASection from "@/components/CTASection";
-import Footer from "@/components/Footer";
-import LoginModal from "@/components/LoginModal";
+import Navbar from "@/components/landing/Navbar";
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import HowItWorks from "@/components/landing/HowItWorks";
+import CTASection from "@/components/landing/CTASection";
+import Footer from "@/components/landing/Footer";
+import LoginModal from "@/components/landing/LoginModal";
 
 export default function Home() {
   const router = useRouter();
