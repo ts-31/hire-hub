@@ -52,6 +52,7 @@ export default function HRWorkspacePage() {
 
       toast.success("Logged out");
       router.push("/");
+      router.refresh();
     } finally {
       setAuthLoading(false);
       setProfileOpen(false);

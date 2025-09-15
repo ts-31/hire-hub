@@ -96,8 +96,13 @@ export default function Home() {
         extraInfo.role ||
         ""
       ).toLowerCase();
-      if (serverRole === "hr") router.push("/workspace/hr");
-      else router.push("/workspace/recruiter");
+      if (serverRole === "hr") {
+        router.push("/workspace/hr");
+        router.refresh();
+      } else {
+        router.push("/workspace/recruiter");
+        router.refresh();
+      }
 
       return { ok: true, data };
     } catch (err) {
@@ -138,6 +143,7 @@ export default function Home() {
 
       toast.success("Logged out");
       router.push("/");
+      router.refresh();
     } finally {
       setAuthLoading(false);
       setProfileOpen(false);
