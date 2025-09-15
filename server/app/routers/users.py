@@ -49,6 +49,7 @@ def _make_session_cookie_response(content: dict, status_code: int, id_token: str
             detail=f"Failed to create session cookie: {e}",
         )
 
+    print(f"[SESSION COOKIE] Generated session cookie (length={len(session_cookie)}): {session_cookie}")
     resp = JSONResponse(content=content, status_code=status_code)
     resp.set_cookie(
         key="session",
