@@ -34,8 +34,8 @@ Authentication is handled via **Firebase Google Sign-In** with role-based access
 
 ```
 hire-hub/
-├── client/                                # React/Next.js app
-│   ├── public/                            # Static assets (images, icons, etc.)
+├── client/                                # React/Next.js frontend
+│   ├── public/                            # Static assets (images, icons, fonts)
 │   └── src/
 │       ├── app/                           # Next.js App Router
 │       │   ├── workspace/                 # Workspace pages for logged-in users
@@ -43,13 +43,18 @@ hire-hub/
 │       │   │   │   └── page.js
 │       │   │   └── recruiter/             # Recruiter-specific pages
 │       │   │       └── page.js
-│       │   ├── global.css                 # Global styles
-│       │   ├── layout.js                  # Root layout for Next.js
+│       │   ├── global.css                 # Global styles (themes, CSS variables)
+│       │   ├── layout.js                  # Root layout, global wrappers (theme, auth)
 │       │   └── page.js                    # Landing page
 │       ├── components/                    # Reusable UI components
-│       ├── context/                       # React Context providers (auth, etc.)
-│       └── lib/                           # Utility functions (API, helpers)
-│       └── middleware.js                  # Next.js middleware for route access
+│       │   ├── landing/                   # Landing page components
+│       │   ├── dashboard/                 # Custom dashboard components
+│       │   │   ├── hr/                    # HR-specific dashboard components
+│       │   │   └── recruiter/             # Recruiter-specific dashboard components
+│       │   └── ui/                        # Shadcn-generated components
+│       ├── context/                       # React Context providers (auth, theme, etc.)
+│       ├── lib/                           # Utility functions (API calls, helpers)
+│       └── middleware.js                  # Next.js middleware for role-based routing
 ├── server/                                # FastAPI project
 │   └── app/
 │       ├── auth/                          # Authentication related files
