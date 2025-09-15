@@ -106,7 +106,7 @@ export default function Home() {
 
       return { ok: true, data };
     } catch (err) {
-      console.error("Login failed:", err); // ✅ still logged, but no red overlay
+      console.warn("Login failed:", err); // ✅ still logged, but no red overlay
       toast.error(err?.message || "Login failed");
       return { ok: false, error: err?.message };
     } finally {
