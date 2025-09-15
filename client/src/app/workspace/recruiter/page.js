@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 export default function RecruiterWorkspacePage() {
+  const router = useRouter();
   const [user, setUser] = useState(null); // now using localStorage
   const [profileOpen, setProfileOpen] = useState(false);
   const [authLoading, setAuthLoading] = useState(false);
@@ -49,7 +51,7 @@ export default function RecruiterWorkspacePage() {
       console.log("session cookie + localstorage cleared");
 
       toast.success("Logged out");
-      window.location.href = "/";
+      router.push("/");
     } finally {
       setAuthLoading(false);
       setProfileOpen(false);
@@ -59,7 +61,7 @@ export default function RecruiterWorkspacePage() {
   if (!user) return <p>Loading user info...</p>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-primary">
       {/* Top bar */}
       <div className="flex justify-between items-center px-6 py-4 border-b bg-white shadow-sm">
         <h1 className="text-xl font-bold text-[#1E3A8A]">

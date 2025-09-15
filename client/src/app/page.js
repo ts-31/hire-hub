@@ -137,7 +137,7 @@ export default function Home() {
       console.log("session cookie + localstorage cleared");
 
       toast.success("Logged out");
-      window.location.href = "/";
+      router.push("/");
     } finally {
       setAuthLoading(false);
       setProfileOpen(false);
