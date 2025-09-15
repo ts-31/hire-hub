@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { toast } from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 export default function RecruiterWorkspacePage() {
   const router = useRouter();
@@ -133,6 +134,7 @@ export default function RecruiterWorkspacePage() {
 
       {/* Page Content */}
       <div className="p-8">
+        <Button>Shadcn Working 🎉</Button>
         <p className="text-gray-700">Welcome to your Recruiter workspace!</p>
       </div>
     </div>
