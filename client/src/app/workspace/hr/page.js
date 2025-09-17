@@ -1,30 +1,16 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Menu, Search, Plus, LogOut } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Sidebar from "@/components/dashboard/hr/Sidebar";
 import Topbar from "@/components/dashboard/hr/Topbar";
 import Jobs from "@/components/dashboard/hr/Jobs";
 import Dashboard from "@/components/dashboard/hr/Dashboard";
 import Candidates from "@/components/dashboard/hr/Candidates";
 import Shortlisted from "@/components/dashboard/hr/Shortlisted";
-
-/* ---------- Single-file HR dashboard (Resumes + Matching removed) ---------- */
 
 export default function HRDashboardPage() {
   const router = useRouter();
@@ -83,7 +69,7 @@ export default function HRDashboardPage() {
 
   const shortlistedCandidates = fakeCandidates.filter((c) => c.shortlisted);
 
-  // Real logout implementation (from your provided snippet)
+  // Real logout implementation
   const handleLogout = async () => {
     try {
       setAuthLoading(true);

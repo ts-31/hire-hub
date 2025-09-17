@@ -1,22 +1,10 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { Menu, Search, Plus, LogOut, ChevronDown } from "lucide-react";
 
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import Sidebar from "@/components/dashboard/recruiter/Sidebar";
 import Topbar from "@/components/dashboard/recruiter/Topbar";
 import Jobs from "@/components/dashboard/recruiter/Jobs";
@@ -24,8 +12,6 @@ import Matching from "@/components/dashboard/recruiter/Matching";
 import Dashboard from "@/components/dashboard/recruiter/Dashboard";
 import Resumes from "@/components/dashboard/recruiter/Resumes";
 import Shortlisted from "@/components/dashboard/recruiter/Shortlisted";
-
-/* ---------- Single-file recruiter dashboard with real logout + hh_user ---------- */
 
 export default function RecruiterDashboardPage() {
   const router = useRouter();
@@ -84,7 +70,7 @@ export default function RecruiterDashboardPage() {
 
   const shortlistedCandidates = fakeCandidates.filter((c) => c.shortlisted);
 
-  // Real logout implementation (from your provided snippet)
+  // Real logout implementation
   const handleLogout = async () => {
     try {
       setAuthLoading(true);
@@ -99,7 +85,7 @@ export default function RecruiterDashboardPage() {
       } catch (fetchErr) {
         console.warn("Failed to reach backend:", fetchErr);
         toast.error("Logout failed (server unreachable)");
-        return; // finally will run and clear loading
+        return;
       }
 
       if (!res.ok) {
