@@ -97,19 +97,28 @@
 }
 
 :root[data-role="hr"] {
-  --color-primary: #0891b2; 
+  --color-primary: #1e3a8a;
   --color-secondary: #1e3a8a;
+  --color-background: #e5e7eb;
+  --color-surface-1: #e5e7eb;
 }
 
 :root[data-role="recruiter"] {
-  --color-primary: #475569; 
+  --color-primary: #0d9488;
   --color-secondary: #1e3a8a;
+  --color-background: #eef2ff;
+  --color-surface-1: #eef2ff;
 }
 
 body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+}
+
+/* body {
   background: var(--color-surface-1);
   color: #111827;
-}
+} */
 
 /* .dark {
   --background: oklch(0.145 0 0);
