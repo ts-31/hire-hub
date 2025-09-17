@@ -19,6 +19,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Sidebar from "@/components/dashboard/recruiter/Sidebar";
 import Topbar from "@/components/dashboard/recruiter/Topbar";
+import Jobs from "@/components/dashboard/recruiter/Jobs";
 
 /* ---------- Single-file recruiter dashboard with real logout + hh_user ---------- */
 
@@ -126,7 +127,7 @@ export default function RecruiterDashboardPage() {
     if (active === "dashboard") return <DashboardMain />;
     if (active === "matching")
       return <MatchingMain candidates={fakeCandidates} jobs={fakeJobs} />;
-    if (active === "jobs") return <JobsMain jobs={fakeJobs} />;
+    if (active === "jobs") return <Jobs jobs={fakeJobs} />;
     if (active === "resumes") return <ResumesMain />;
     if (active === "shortlisted")
       return <ShortlistedMain candidates={shortlistedCandidates} />;
@@ -486,48 +487,6 @@ function MatchingMain({ candidates = [], jobs = [] }) {
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
-}
-
-/* ------------------- Jobs Main ------------------- */
-function JobsMain({ jobs = [] }) {
-  return (
-    <div className="grid grid-cols-1 gap-6">
-      <Card
-        className="bg-white/60"
-        style={{ border: "1px solid var(--color-border)" }}
-      >
-        <CardHeader>
-          <CardTitle className="text-xl">Your Jobs</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {jobs.map((j) => (
-              <div
-                key={j.id}
-                className="p-4 rounded-md bg-[color:var(--color-surface-1)] border"
-                style={{ borderColor: "var(--color-border)" }}
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium">{j.title}</div>
-                    <div className="text-xs text-[color:var(--color-foreground-muted)]">
-                      {j.status} • {j.applicants} applicants
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline">
-                      Edit
-                    </Button>
-                    <Button size="sm">View</Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
