@@ -21,6 +21,9 @@ import Sidebar from "@/components/dashboard/recruiter/Sidebar";
 import Topbar from "@/components/dashboard/recruiter/Topbar";
 import Jobs from "@/components/dashboard/recruiter/Jobs";
 import Matching from "@/components/dashboard/recruiter/Matching";
+import Dashboard from "@/components/dashboard/recruiter/Dashboard";
+import Resumes from "@/components/dashboard/recruiter/Resumes";
+import Shortlisted from "@/components/dashboard/recruiter/Shortlisted";
 
 /* ---------- Single-file recruiter dashboard with real logout + hh_user ---------- */
 
@@ -125,14 +128,14 @@ export default function RecruiterDashboardPage() {
 
   // Main content switcher
   const renderMain = () => {
-    if (active === "dashboard") return <DashboardMain />;
+    if (active === "dashboard") return <Dashboard />;
     if (active === "matching")
       return <Matching candidates={fakeCandidates} jobs={fakeJobs} />;
     if (active === "jobs") return <Jobs jobs={fakeJobs} />;
-    if (active === "resumes") return <ResumesMain />;
+    if (active === "resumes") return <Resumes />;
     if (active === "shortlisted")
-      return <ShortlistedMain candidates={shortlistedCandidates} />;
-    return <DashboardMain />;
+      return <Shortlisted candidates={shortlistedCandidates} />;
+    return <Dashboard />;
   };
 
   return (
@@ -184,234 +187,6 @@ export default function RecruiterDashboardPage() {
       >
         <div style={{ minHeight: "100%" }}>{renderMain()}</div>
       </main>
-    </div>
-  );
-}
-
-/* ------------------- Dashboard Main ------------------- */
-function DashboardMain() {
-  const stats = { jobs: 8, resumes: 420, shortlisted: 12, pendingMatches: 3 };
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <Card
-          className="bg-white/60"
-          style={{ border: "1px solid var(--color-border)" }}
-        >
-          <CardHeader>
-            <CardTitle className="text-xl">Dashboard Overview</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              At-a-glance metrics and quick actions.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <MiniStat label="Jobs" value={stats.jobs} />
-              <MiniStat label="Resumes" value={stats.resumes} />
-              <MiniStat label="Shortlisted" value={stats.shortlisted} />
-              <MiniStat label="Pending Matches" value={stats.pendingMatches} />
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="bg-white/60"
-          style={{ border: "1px solid var(--color-border)" }}
-        >
-          <CardHeader>
-            <CardTitle className="text-lg">Recent Matches</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              Top candidate matches for your active jobs.
-            </p>
-            <div className="mt-4 space-y-3">
-              <SimpleCandidateRow
-                name="Priya Sharma"
-                role="Frontend Intern"
-                score={94}
-              />
-              <SimpleCandidateRow
-                name="Rohit Kumar"
-                role="Backend Intern"
-                score={88}
-              />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="lg:col-span-1 space-y-6">
-        <Card
-          className="bg-white/60"
-          style={{ border: "1px solid var(--color-border)" }}
-        >
-          <CardHeader>
-            <CardTitle className="text-lg">Active Jobs</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              Jobs you recently posted.
-            </p>
-            <ul className="mt-3 space-y-2">
-              <li className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Frontend Intern</div>
-                  <div className="text-xs text-[color:var(--color-foreground-muted)]">
-                    Open • 12 applicants
-                  </div>
-                </div>
-                <Badge>Active</Badge>
-              </li>
-              <li className="flex items-center justify-between">
-                <div>
-                  <div className="font-medium">Backend Intern</div>
-                  <div className="text-xs text-[color:var(--color-foreground-muted)]">
-                    Open • 22 applicants
-                  </div>
-                </div>
-                <Badge>Active</Badge>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------- Resumes Main (analytics) ------------------- */
-function ResumesMain() {
-  const stats = { uploaded: 420, parsed: 408, avgScore: 78, newThisWeek: 32 };
-
-  return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div className="lg:col-span-2 space-y-6">
-        <Card
-          className="bg-white/60"
-          style={{ border: "1px solid var(--color-border)" }}
-        >
-          <CardHeader>
-            <CardTitle className="text-xl">Resume Analytics</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              Overview of resumes uploaded and parsing / match stats.
-            </p>
-            <div className="mt-4 grid grid-cols-2 gap-4">
-              <MiniStat label="Uploaded" value={stats.uploaded} />
-              <MiniStat label="Parsed" value={stats.parsed} />
-              <MiniStat label="Avg Match" value={`${stats.avgScore}%`} />
-              <MiniStat label="New this week" value={stats.newThisWeek} />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="lg:col-span-1 space-y-6">
-        <Card
-          className="bg-white/60"
-          style={{ border: "1px solid var(--color-border)" }}
-        >
-          <CardHeader>
-            <CardTitle className="text-lg">Parsing Health</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              Errors, average parse time, and last run.
-            </p>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>Last run: 2 hours ago</li>
-              <li>Parse errors: 1.4%</li>
-              <li>Avg parse time: 1.2s</li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------- Shortlisted Main ------------------- */
-function ShortlistedMain({ candidates = [] }) {
-  return (
-    <div className="space-y-4">
-      <Card
-        className="bg-white/60"
-        style={{ border: "1px solid var(--color-border)" }}
-      >
-        <CardHeader>
-          <CardTitle className="text-xl">Shortlisted Candidates</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {candidates.length === 0 ? (
-            <p className="text-sm text-[color:var(--color-foreground-muted)]">
-              No shortlisted candidates yet.
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {candidates.map((c) => (
-                <div
-                  key={c.id}
-                  className="p-3 rounded-md bg-[color:var(--color-surface-1)] border"
-                  style={{ borderColor: "var(--color-border)" }}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium">{c.name}</div>
-                      <div className="text-xs text-[color:var(--color-foreground-muted)]">
-                        Score: {c.score}% • {c.experience}
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="ghost">
-                        View
-                      </Button>
-                      <Button size="sm">Remove</Button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-/* ------------------- Small helpers & UI pieces ------------------- */
-
-function MiniStat({ label, value }) {
-  return (
-    <div
-      className="p-3 rounded-md bg-[color:var(--color-surface-1)] border"
-      style={{ borderColor: "var(--color-border)" }}
-    >
-      <div className="text-xs text-[color:var(--color-foreground-muted)]">
-        {label}
-      </div>
-      <div className="text-lg font-semibold">{value}</div>
-    </div>
-  );
-}
-
-function SimpleCandidateRow({ name, role, score }) {
-  return (
-    <div
-      className="p-3 rounded-md bg-[color:var(--color-surface-1)] border"
-      style={{ borderColor: "var(--color-border)" }}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="font-medium">{name}</div>
-          <div className="text-xs text-[color:var(--color-foreground-muted)]">
-            {role}
-          </div>
-        </div>
-        <div className="text-lg font-semibold">{score}%</div>
-      </div>
     </div>
   );
 }
