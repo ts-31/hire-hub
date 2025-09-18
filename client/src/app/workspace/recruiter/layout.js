@@ -1,7 +1,11 @@
 // src/app/workspace/recruiter/layout.js
-export const metadata = { title: "Recruiter • Workspace" };
+import RecruiterShell from "@/components/dashboard/recruiter/RecruiterShell";
 
-// A minimal pass-through layout — page-level keeps Topbar & main UI
+export const metadata = {
+  title: "Recruiter • Workspace",
+};
+
 export default function RecruiterLayout({ children }) {
-  return <>{children}</>;
+  // Layout is a small server component that delegates rendering to a client shell.
+  return <RecruiterShell>{children}</RecruiterShell>;
 }
