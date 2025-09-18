@@ -1,7 +1,11 @@
 // src/app/workspace/hr/layout.js
-export const metadata = { title: "Hr • Workspace" };
+import HrShell from "@/components/dashboard/hr/HrShell";
 
-// A minimal pass-through layout — page-level keeps Topbar & main UI
-export default function RecruiterLayout({ children }) {
-  return <>{children}</>;
+export const metadata = {
+  title: "HR • Workspace",
+};
+
+export default function HrLayout({ children }) {
+  // simple server layout that delegates the interactive shell to the client component
+  return <HrShell>{children}</HrShell>;
 }
