@@ -12,14 +12,7 @@ load_dotenv()
 from app.config.db import get_db
 from app.models.users import User
 
-# ✅ Firebase Admin initialization (inline, runs once)
-import firebase_admin
-from firebase_admin import credentials, auth as firebase_auth
-
-if not firebase_admin._apps:
-    cred = credentials.Certificate("service-account.json")
-    firebase_admin.initialize_app(cred)
-    print("[FIREBASE] Admin SDK initialized successfully.")
+from app.core.firebase import firebase_auth
 
 router = APIRouter()
 _security = HTTPBearer()
@@ -49,7 +42,9 @@ def _make_session_cookie_response(content: dict, status_code: int, id_token: str
             detail=f"Failed to create session cookie: {e}",
         )
 
-    print(f"[SESSION COOKIE] Generated session cookie (length={len(session_cookie)}): {session_cookie}")
+    print(
+        f"[SESSION COOKIE] Generated session cookie (length={len(session_cookie)}): {session_cookie}"
+    )
     resp = JSONResponse(content=content, status_code=status_code)
     resp.set_cookie(
         key="session",
