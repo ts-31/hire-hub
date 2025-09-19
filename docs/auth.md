@@ -6,6 +6,8 @@ This document explains how **Login**, **Registration**, and **Frontend Access Co
 
 ## 🔑 Authentication Flow
 
+> **Note:** the backend now stores `Company` in its own `companies` table. Users are linked to a company via `users.company_id`. HR users are recorded as the company's HR via `companies.hr_user_id` (nullable during creation flow). The `/check-user` flow uses these tables when deciding registration/login behavior.
+
 ### 1. Login with Google
 - User clicks **Login** button.
 - They can log in using **Sign in with Google** (Firebase handles authentication).
@@ -20,7 +22,7 @@ The `/check-user` route handles **both login and registration** depending on the
 #### **Login Check Mode**
 - **Request**: `POST /check-user` with **no body** (or empty body).
 - Backend verifies Firebase ID token and checks DB:
-  - ✅ If user exists → returns `200 OK` with user details and sets session cookie.
+  - ✅ If user exists → returns `200 OK` with user details and sets session cookie. The `company_name` in the response is derived from the related `companies` row (if present).
   - ❌ If user does not exist → returns `404 User is not registered`.
 
 #### **Registration Mode**
@@ -34,6 +36,10 @@ The `/check-user` route handles **both login and registration** depending on the
 - Registration requires **role** and **company_name**.
 - Upon success, sets Firebase custom claims and session cookie.
 
+> **Implementation detail (how registration uses DB tables):**
+> - **HR registration**: backend will create the `User` with role `HR` and create a new `Company` row linked to that user (company name stored in `companies.name` and the HR `User` linked via `companies.hr_user_id` and `users.company_id`). HR registration is allowed only if the company does not already exist.
+> - **Recruiter registration**: backend will look up the `Company` by name and create a `User` with role `Recruiter` linked to that company via `users.company_id`. Recruiter registration is allowed only if the company already exists.
+
 ### 3. Logout
 - **Request**: `POST /session-logout` (no body required).
 - Clears the session cookie by setting an expired cookie.
@@ -46,13 +52,13 @@ The `/check-user` route handles **both login and registration** depending on the
 
 ### HR Registration
 - Allowed **only if the company does NOT already exist** in DB.
-- Creates a new user with role = `HR`.
+- Creates a new user with role = `HR` and creates a `Company` row linked to that HR user.
 - Sets Firebase custom claims: `{ role: "HR", company: company_name }`.
 - Response: `201 Created` with user details and session cookie.
 
 ### Recruiter Registration
 - Allowed **only if the company already exists** in DB (created by HR).
-- Creates a new user with role = `Recruiter` and assigns to that company.
+- Creates a new user with role = `Recruiter` and assigns to that company (`users.company_id`).
 - Sets Firebase custom claims: `{ role: "Recruiter", company: company_name }`.
 - Response: `201 Created` with user details and session cookie.
 
