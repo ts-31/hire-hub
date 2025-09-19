@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config.db import Base, engine
+from app.models import *
 from app.routers import users
 import app.core.firebase as firebase_core
 

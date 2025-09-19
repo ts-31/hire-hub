@@ -11,6 +11,7 @@ load_dotenv()
 
 from app.config.db import get_db
 from app.models.users import User
+from app.models.company import Company
 from app.utils.auth import decode_session_cookie_best_effort
 
 
@@ -97,6 +98,9 @@ def check_user(
     if not payload:
         user = db.query(User).filter(User.firebase_uid == uid).first()
         if user:
+            # derive company_name from related Company row (if present)
+            company_name = user.company.name if user.company else None
+
             content = {
                 "message": "User exists",
                 "user": {
@@ -104,7 +108,7 @@ def check_user(
                     "name": user.name,
                     "email": user.email,
                     "role": user.role,
-                    "company_name": user.company_name,
+                    "company_name": company_name,
                 },
             }
             # Create session cookie and include it in response
@@ -138,7 +142,7 @@ def check_user(
 
     # Normalize company matching for lookups (case-insensitive)
     existing_company_user = (
-        db.query(User).filter(User.company_name.ilike(company_name)).first()
+        db.query(Company).filter(Company.name.ilike(company_name)).first()
     )
 
     # HR registration: company must NOT exist
@@ -149,21 +153,42 @@ def check_user(
                 detail="Company already exists. Cannot create HR for this company.",
             )
 
-        new_user = User(
-            firebase_uid=uid,
-            email=email,
-            name=name,
-            role="HR",
-            company_name=company_name,
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        # Create HR user first (company_id left NULL), then create Company with hr_user_id,
+        # then update user's company_id to point back to company.
+        try:
+            # 1) create HR user with company_id = None temporarily
+            new_user = User(
+                firebase_uid=uid,
+                email=email,
+                name=name,
+                role="HR",
+                company_id=None,
+            )
+            db.add(new_user)
+            db.flush()  # populates new_user.id
+
+            # 2) create Company referencing the new_user as hr_user
+            new_company = Company(name=company_name, hr_user_id=new_user.id)
+            db.add(new_company)
+            db.flush()  # populates new_company.id
+
+            # 3) update the user to reference the company
+            new_user.company_id = new_company.id
+            db.add(new_user)
+
+            db.commit()
+            db.refresh(new_user)
+            db.refresh(new_company)
+
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Registration failed: {e}",
+            )
 
         # Set custom claims in Firebase (best-effort)
-        _set_custom_claims_safe(
-            new_user.firebase_uid, new_user.role, new_user.company_name
-        )
+        _set_custom_claims_safe(new_user.firebase_uid, new_user.role, new_company.name)
 
         content = {
             "message": "HR user created successfully",
@@ -172,7 +197,7 @@ def check_user(
                 "name": new_user.name,
                 "email": new_user.email,
                 "role": new_user.role,
-                "company_name": new_user.company_name,
+                "company_name": new_company.name,
             },
         }
         return _make_session_cookie_response(
@@ -188,20 +213,27 @@ def check_user(
             )
 
         # Use the canonical company_name from DB to keep consistency
-        new_user = User(
-            firebase_uid=uid,
-            email=email,
-            name=name,
-            role="Recruiter",
-            company_name=existing_company_user.company_name,
-        )
-        db.add(new_user)
-        db.commit()
-        db.refresh(new_user)
+        try:
+            new_user = User(
+                firebase_uid=uid,
+                email=email,
+                name=name,
+                role="Recruiter",
+                company_id=existing_company_user.id,
+            )
+            db.add(new_user)
+            db.commit()
+            db.refresh(new_user)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Registration failed: {e}",
+            )
 
         # Set custom claims in Firebase (best-effort)
         _set_custom_claims_safe(
-            new_user.firebase_uid, new_user.role, new_user.company_name
+            new_user.firebase_uid, new_user.role, existing_company_user.name
         )
 
         content = {
@@ -211,7 +243,7 @@ def check_user(
                 "name": new_user.name,
                 "email": new_user.email,
                 "role": new_user.role,
-                "company_name": new_user.company_name,
+                "company_name": existing_company_user.name,
             },
         }
         return _make_session_cookie_response(
