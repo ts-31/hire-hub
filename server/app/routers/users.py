@@ -11,6 +11,8 @@ load_dotenv()
 
 from app.config.db import get_db
 from app.models.users import User
+from app.utils.auth import decode_session_cookie_best_effort
+
 
 from app.core.firebase import firebase_auth
 
@@ -232,37 +234,32 @@ COOKIE_HTTPONLY = True
 
 
 @router.post("/session-logout")
-def session_logout(request: Request):
+def session_logout(decoded: dict | None = Depends(decode_session_cookie_best_effort)):
     """
-    Clears the session cookie. Ensure the response we RETURN contains the Set-Cookie header.
+    Logout route:
+    - best-effort decode session cookie to get UID (optional)
+    - revoke refresh tokens if desired
+    - clear cookie in response
     """
-    print("Req comes to logout")
-    print("Incoming cookies:", request.cookies)
-    session_cookie = request.cookies.get(COOKIE_NAME)
-    if session_cookie:
-        # Try to decode to get uid (best-effort) - optional
+    uid = decoded.get("uid") if decoded else None
+    if uid:
         try:
-            decoded = firebase_auth.verify_session_cookie(
-                session_cookie, check_revoked=False
-            )
-            uid = decoded.get("uid")
-            # optionally revoke refresh tokens
-            # firebase_auth.revoke_refresh_tokens(uid)
-        except Exception:
-            uid = None
+            # optional: revoke Firebase refresh tokens
+            firebase_auth.revoke_refresh_tokens(uid)
+            print(f"[FIREBASE] Revoked refresh tokens for uid={uid}")
+        except Exception as e:
+            print(f"[FIREBASE] Failed to revoke tokens for uid={uid}: {e}")
 
-    # Build the response we WILL return
-    resp = JSONResponse({"message": "Logged out"}, status_code=status.HTTP_200_OK)
+    # Clear cookie in response
+    from fastapi.responses import JSONResponse
 
-    # Delete cookie by matching the same scope/attributes used when setting it.
-    # If COOKIE_DOMAIN is None or empty, pass no domain (host-only cookie).
+    resp = JSONResponse({"message": "Logged out"}, status_code=200)
     if COOKIE_DOMAIN:
         resp.delete_cookie(COOKIE_NAME, path=COOKIE_PATH, domain=COOKIE_DOMAIN)
     else:
         resp.delete_cookie(COOKIE_NAME, path=COOKIE_PATH)
 
-    # Extra: also set an expired cookie explicitly with same attributes (very reliable)
-    # (Some browsers/clients respond better to an explicit expired Set-Cookie)
+    # Explicitly set expired cookie
     resp.set_cookie(
         key=COOKIE_NAME,
         value="",
@@ -274,5 +271,4 @@ def session_logout(request: Request):
         httponly=COOKIE_HTTPONLY,
         samesite=COOKIE_SAMESITE if COOKIE_SAMESITE else "Lax",
     )
-
     return resp
