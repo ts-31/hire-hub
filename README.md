@@ -64,10 +64,25 @@ hire-hub/
 │       ├── core/                          # Core utilities
 │       │   └── firebase.py                # Firebase auth integration
 │       ├── models/                        # Database models
+│       │   ├── company.py                 # Company table model
+│       │   ├── jobs.py                    # Jobs table model
+│       │   ├── resumes.py                 # Resumes table model
 │       │   └── users.py                   # Users table model
 │       ├── routers/                       # API routes
+│       │   ├── hr/                        # HR-related endpoints
+│       │   │   ├── candidates.py          # Manage candidates
+│       │   │   ├── jobs.py                # Manage HR jobs
+│       │   │   └── shortlisted.py         # View/manage shortlisted candidates
+│       │   ├── recruiter/                 # Recruiter-related endpoints
+│       │   │   ├── filters.py             # Candidate/job filters
+│       │   │   ├── jobs.py                # Recruiter job management
+│       │   │   ├── matching.py            # Candidate-job matching logic
+│       │   │   ├── resumes.py             # Manage resumes
+│       │   │   └── shortlisted.py         # Manage shortlisted candidates
 │       │   └── users.py                   # Users-related endpoints
 │       ├── schemas/                       # Pydantic schemas
+│       ├── utils/                         # Utility functions
+│       │   └── auth.py                    # Session cookie & role-based auth helpers
 │       └── main.py                        # FastAPI app entry point
 ├── docs/                                  # Documentation and diagrams
 └── README.md                              # Project overview & instructions
