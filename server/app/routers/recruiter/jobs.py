@@ -7,10 +7,10 @@ from app.utils.auth import require_recruiter
 from app.models.jobs import Job
 from app.models.company import Company
 
-router = APIRouter(prefix="/recruiter/jobs", tags=["recruiter-jobs"])
+router = APIRouter(prefix="/recruiter", tags=["recruiter-jobs"])
 
 
-@router.post("", status_code=status.HTTP_201_CREATED)
+@router.post("/jobs", status_code=status.HTTP_201_CREATED)
 async def create_job(
     request: Request,
     db: Session = Depends(get_db),
@@ -22,7 +22,7 @@ async def create_job(
       { "title": "...", "description": "..." }
     Company is derived from current_user (server-side).
     """
-    # parse body 
+    # parse body
     print("Req comes to create job", request.cookies)
     try:
         payload = await request.json()
@@ -92,4 +92,92 @@ async def create_job(
         "company_id": job.company_id,
         "recruiter_id": job.recruiter_id,
         "created_at": job.created_at.isoformat() if job.created_at else None,
+    }
+
+
+# GET /recruiter/jobs/summary
+@router.get("/summary", status_code=status.HTTP_200_OK)
+async def recruiter_summary(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_recruiter),
+):
+    """
+    Return totals for the logged-in recruiter:
+      - total_jobs: number of jobs created by this recruiter
+      - total_resumes: number of resumes submitted to this recruiter's jobs
+      - total_shortlisted: number of shortlisted resumes (best-effort based on schema)
+
+    Behavior is defensive so this endpoint works across slightly different schema shapes.
+    """
+    # Import models lazily so file-level imports don't fail if optional models are missing
+    from app.models.jobs import Job
+
+    # Jobs count (straightforward)
+    jobs_count = db.query(Job).filter(Job.recruiter_id == current_user.id).count()
+
+    # Resumes count: join Resume -> Job and filter by recruiter's jobs
+    resumes_count = 0
+    try:
+        from app.models.resumes import Resume
+
+        resumes_count = (
+            db.query(Resume)
+            .join(Job, Resume.job_id == Job.id)
+            .filter(Job.recruiter_id == current_user.id)
+            .count()
+        )
+    except Exception:
+        # If Resume model is missing, keep resumes_count = 0 (defensive)
+        resumes_count = 0
+
+    # Shortlisted count: try to use an explicit Shortlist/Shortlisted model first,
+    # otherwise check for a resume-level boolean flag `is_shortlisted`.
+    shortlisted_count = 0
+    ShortlistModel = None
+    try:
+        # common candidate model names: app.models.shortlisted.Shortlisted
+        from app.models.shortlisted import Shortlisted as ShortlistModel
+    except Exception:
+        try:
+            # app.models.shortlist.Shortlist
+            from app.models.shortlist import Shortlist as ShortlistModel
+        except Exception:
+            ShortlistModel = None
+
+    if ShortlistModel is not None:
+        # If there's an explicit shortlist model, assume it has job_id FK
+        try:
+            shortlisted_count = (
+                db.query(ShortlistModel)
+                .join(Job, getattr(ShortlistModel, "job_id") == Job.id)
+                .filter(Job.recruiter_id == current_user.id)
+                .count()
+            )
+        except Exception:
+            shortlisted_count = 0
+    else:
+        # fallback: if Resume model exists and has `is_shortlisted` boolean column
+        try:
+            # Resume may already be imported above; re-import to be safe
+            from app.models.resumes import Resume
+
+            if hasattr(Resume, "is_shortlisted"):
+                shortlisted_count = (
+                    db.query(Resume)
+                    .join(Job, Resume.job_id == Job.id)
+                    .filter(
+                        Job.recruiter_id == current_user.id,
+                        getattr(Resume, "is_shortlisted") == True,
+                    )
+                    .count()
+                )
+            else:
+                shortlisted_count = 0
+        except Exception:
+            shortlisted_count = 0
+
+    return {
+        "total_jobs": jobs_count,
+        "total_resumes": resumes_count,
+        "total_shortlisted": shortlisted_count,
     }
