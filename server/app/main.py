@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config.db import Base, engine
 from app.models import *
 from app.routers import users
+from app.routers.recruiter import jobs
 import app.core.firebase as firebase_core
 
 Base.metadata.create_all(bind=engine)
@@ -31,3 +32,4 @@ def startup_event():
 
 
 app.include_router(users.router)
+app.include_router(jobs.router)
