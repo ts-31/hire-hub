@@ -95,6 +95,46 @@ async def create_job(
     }
 
 
+@router.get("/jobs", status_code=status.HTTP_200_OK)
+async def list_recruiter_jobs(
+    db: Session = Depends(get_db),
+    current_user=Depends(require_recruiter),
+):
+    """
+    List ALL jobs created by the logged-in recruiter.
+    No search, no pagination.
+    """
+    jobs = (
+        db.query(Job)
+        .filter(Job.recruiter_id == current_user.id)
+        .order_by(Job.created_at.desc())
+        .all()
+    )
+
+    results = []
+    for j in jobs:
+        # Defensive: company relationship may not always be loaded
+        company_name = None
+        try:
+            company_name = j.company.name if getattr(j, "company", None) else None
+        except Exception:
+            company_name = None
+
+        results.append(
+            {
+                "id": j.id,
+                "title": j.title,
+                "description": j.description,
+                "company_id": j.company_id,
+                "company_name": company_name,
+                "recruiter_id": j.recruiter_id,
+                "created_at": j.created_at.isoformat() if j.created_at else None,
+            }
+        )
+
+    return {"total": len(results), "jobs": results}
+
+
 # GET /recruiter/jobs/summary
 @router.get("/summary", status_code=status.HTTP_200_OK)
 async def recruiter_summary(
