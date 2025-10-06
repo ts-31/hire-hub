@@ -20,6 +20,16 @@ Authentication is handled via **Firebase Google Sign-In** with role-based access
 
 ---
 
+## 🎥 Demo Videos
+
+### Recruiter Workflow
+![Recruiter Demo](./demos/recruiter-demo.gif)
+
+### HR Dashboard
+![HR Demo](./demos/hr-demo.gif)
+
+---
+
 ## 🛠 Tech Stack
 
 - **Backend:** Python + FastAPI  
